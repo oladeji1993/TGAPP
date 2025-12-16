@@ -18,6 +18,11 @@ html, body {
   filter: brightness(0) saturate(100%) invert(5%) sepia(12%) saturate(4233%) hue-rotate(200deg) brightness(96%) contrast(98%);
 }
 
+/* Red filter for active menu icons - matches #F60E0E */
+.filter-red {
+  filter: brightness(0) saturate(100%) invert(14%) sepia(95%) saturate(6932%) hue-rotate(358deg) brightness(103%) contrast(96%);
+}
+
 /* Donut Chart Animation */
 @keyframes dashOffset {
   0% {

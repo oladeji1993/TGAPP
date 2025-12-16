@@ -1,173 +1,275 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { RefreshCw, ArrowRight, Calendar, FileText } from "lucide-react";
+import { Search, ChevronDown, ChevronLeft, ChevronRight, Download, SlidersHorizontal } from "lucide-react";
+
+// Transaction data type
+interface Transaction {
+    id: number;
+    sessionId: string;
+    transDate: string;
+    channel: string;
+    paymentType: string;
+    amount: string;
+    provider: string;
+    status: string;
+}
+
+// Sample data
+const transactionsData: Transaction[] = [
+    { id: 1, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "OneBank", paymentType: "Transfer", amount: "N000,000,000.00", provider: "NIP", status: "Successful" },
+    { id: 2, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "Altbank", paymentType: "Transfer", amount: "N000,000,000.00", provider: "NPS", status: "Successful" },
+    { id: 3, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "Banca", paymentType: "Transfer", amount: "N000,000,000.00", provider: "NEFT", status: "Successful" },
+    { id: 4, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "Onebank", paymentType: "Airtime", amount: "N000,000,000.00", provider: "Quickteller", status: "Successful" },
+    { id: 5, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "OneBank", paymentType: "Transfer", amount: "N000,000,000.00", provider: "NIP", status: "Successful" },
+    { id: 6, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "Altbank", paymentType: "Transfer", amount: "N000,000,000.00", provider: "NPS", status: "Pending" },
+    { id: 7, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "Banca", paymentType: "Transfer", amount: "N000,000,000.00", provider: "NEFT", status: "Reversed" },
+    { id: 8, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "Onebank", paymentType: "Airtime", amount: "N000,000,000.00", provider: "Quickteller", status: "Failed" },
+    { id: 9, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "OneBank", paymentType: "Transfer", amount: "N000,000,000.00", provider: "NIP", status: "Successful" },
+    { id: 10, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "Altbank", paymentType: "Transfer", amount: "N000,000,000.00", provider: "NPS", status: "Successful" },
+    { id: 11, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "Banca", paymentType: "Transfer", amount: "N000,000,000.00", provider: "NEFT", status: "Successful" },
+    { id: 12, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "Onebank", paymentType: "Airtime", amount: "N000,000,000.00", provider: "Quickteller", status: "Successful" },
+    { id: 13, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "OneBank", paymentType: "Transfer", amount: "N000,000,000.00", provider: "NIP", status: "Successful" },
+    { id: 14, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "Altbank", paymentType: "Transfer", amount: "N000,000,000.00", provider: "NPS", status: "Pending" },
+    { id: 15, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "Banca", paymentType: "Transfer", amount: "N000,000,000.00", provider: "NEFT", status: "Reversed" },
+    { id: 16, sessionId: "000015200420193803000884...", transDate: "12/12/2025 - 12:00PM", channel: "Onebank", paymentType: "Airtime", amount: "N000,000,000.00", provider: "Quickteller", status: "Failed" },
+];
 
 const TransactionsPage = () => {
-    const [activeTab, setActiveTab] = useState<"inter" | "intra">("inter");
-    const [paymentGateway, setPaymentGateway] = useState("NIP");
-    const [transactionFlow, setTransactionFlow] = useState("Inward");
-    const [searchWith, setSearchWith] = useState("Account Number");
-    const [accountNumber, setAccountNumber] = useState("");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [hasSearched, setHasSearched] = useState(false);
+    const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 10;
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "Successful": return "text-[#27920B]";
+            case "Pending": return "text-[#F59E0B]";
+            case "Reversed": return "text-[#F97316]";
+            case "Failed": return "text-[#EF4444]";
+            default: return "text-gray-600";
+        }
+    };
+
+    const handleSearch = () => {
+        if (searchQuery.trim()) {
+            setHasSearched(true);
+        }
+    };
+
+    const handleSelectAll = () => {
+        if (selectedRows.size === transactionsData.length) {
+            setSelectedRows(new Set());
+        } else {
+            setSelectedRows(new Set(transactionsData.map(t => t.id)));
+        }
+    };
+
+    const handleSelectRow = (id: number) => {
+        const newSelected = new Set(selectedRows);
+        if (newSelected.has(id)) {
+            newSelected.delete(id);
+        } else {
+            newSelected.add(id);
+        }
+        setSelectedRows(newSelected);
+    };
+
+    const totalPages = Math.ceil(transactionsData.length / pageSize);
+    const paginatedData = transactionsData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     return (
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h1 className="text-lg sm:text-xl font-bold text-gray-900">Transactions Status Checker</h1>
-                <button className="flex items-center gap-2 px-4 py-2 border border-[#4726CD] text-[#4726CD] rounded-lg text-sm font-medium hover:bg-[#4726CD] hover:text-white transition-colors">
-                    <span>Refresh</span>
-                    <RefreshCw className="w-4 h-4" />
+            <h1 className="text-xl font-bold text-gray-900">Transaction Status</h1>
+
+            {/* Filters Row */}
+            <div className="flex flex-wrap items-center gap-3">
+                {/* Search */}
+                <div>
+                    <p className="text-xs text-gray-500 mb-1">Search for Transactions</p>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Enter account number, reference ID"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-72 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                        />
+                    </div>
+                </div>
+
+                {/* Divider */}
+                <div className="h-10 w-px bg-gray-200 self-end mb-0.5"></div>
+
+                {/* Filter Label */}
+                <span className="text-sm text-gray-500 self-end mb-2">Filter by:</span>
+
+                {/* Channel Filter */}
+                <div>
+                    <p className="text-xs text-gray-500 mb-1">Channel</p>
+                    <div className="relative">
+                        <select className="appearance-none pl-4 pr-10 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none w-36">
+                            <option>All Channels</option>
+                            <option>OneBank</option>
+                            <option>Altbank</option>
+                            <option>Banca</option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    </div>
+                </div>
+
+                {/* Provider Filter */}
+                <div>
+                    <p className="text-xs text-gray-500 mb-1">Provider</p>
+                    <div className="relative">
+                        <select className="appearance-none pl-4 pr-10 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none w-36">
+                            <option>All Providers</option>
+                            <option>NIP</option>
+                            <option>NPS</option>
+                            <option>NEFT</option>
+                            <option>Quickteller</option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    </div>
+                </div>
+
+                {/* Status Filter */}
+                <div>
+                    <p className="text-xs text-gray-500 mb-1">Status</p>
+                    <div className="relative">
+                        <select className="appearance-none pl-4 pr-10 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none w-32">
+                            <option>All Statuses</option>
+                            <option>Successful</option>
+                            <option>Pending</option>
+                            <option>Reversed</option>
+                            <option>Failed</option>
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    </div>
+                </div>
+
+                {/* More Filters */}
+                <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium self-end">
+                    More Filters
+                    <SlidersHorizontal className="w-4 h-4" />
+                </button>
+
+                {/* Export */}
+                <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium self-end">
+                    Export
+                    <Download className="w-4 h-4" />
                 </button>
             </div>
 
-            {/* Main Card */}
-            <Card className="border border-gray-200 shadow-sm">
-                <CardContent className="p-0">
-                    {/* Tabs */}
-                    <div className="flex gap-6 border-b border-gray-200 px-6 pt-6">
+            {/* Content */}
+            {!hasSearched ? (
+                /* Empty State */
+                <div className="flex flex-col items-center justify-center py-32 text-center border-t border-gray-200">
+                    <div className="w-16 h-16 mb-4">
+                        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="12" y="8" width="40" height="48" rx="4" stroke="#F60E0E" strokeWidth="2"/>
+                            <line x1="20" y1="20" x2="44" y2="20" stroke="#F60E0E" strokeWidth="2"/>
+                            <line x1="20" y1="28" x2="44" y2="28" stroke="#F60E0E" strokeWidth="2"/>
+                            <line x1="20" y1="36" x2="36" y2="36" stroke="#F60E0E" strokeWidth="2"/>
+                        </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No transactions listed</h3>
+                    <p className="text-sm text-gray-500 max-w-md">
+                        Search for transactions above using Search above and filter results afterwards.
+                    </p>
+                </div>
+            ) : (
+                /* Table */
+                <div className="border-t border-b border-gray-200">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-[#F5F5F5]">
+                                <tr>
+                                    <th className="w-12 px-4 py-3">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedRows.size === transactionsData.length}
+                                            onChange={handleSelectAll}
+                                            className="w-4 h-4 rounded border-gray-300"
+                                        />
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Session/Reference ID</th>
+                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                                        <div className="flex items-center gap-1">
+                                            Trans. Date & Time
+                                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                                        </div>
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Channel</th>
+                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Payment Type</th>
+                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">
+                                        <div className="flex items-center gap-1">
+                                            Amount
+                                            <ChevronDown className="w-4 h-4 text-gray-400" />
+                                        </div>
+                                    </th>
+                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Provider</th>
+                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+                                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">More</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paginatedData.map((transaction, index) => (
+                                    <tr key={transaction.id} className={index % 2 === 1 ? 'bg-[#F9F9F9]' : 'bg-white'}>
+                                        <td className="px-4 py-2.5">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedRows.has(transaction.id)}
+                                                onChange={() => handleSelectRow(transaction.id)}
+                                                className="w-4 h-4 rounded border-gray-300"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-2.5 text-sm text-gray-600">{transaction.sessionId}</td>
+                                        <td className="px-4 py-2.5 text-sm text-gray-600">{transaction.transDate}</td>
+                                        <td className="px-4 py-2.5 text-sm text-gray-600">{transaction.channel}</td>
+                                        <td className="px-4 py-2.5 text-sm text-gray-600">{transaction.paymentType}</td>
+                                        <td className="px-4 py-2.5 text-sm text-gray-600">{transaction.amount}</td>
+                                        <td className="px-4 py-2.5 text-sm text-gray-600">{transaction.provider}</td>
+                                        <td className="px-4 py-2.5">
+                                            <span className={`text-sm font-medium ${getStatusColor(transaction.status)}`}>
+                                                {transaction.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-2.5">
+                                            <button className="p-1 hover:bg-gray-100 rounded-full">
+                                                <Search className="w-4 h-4 text-gray-500" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="flex items-center justify-end gap-2 py-4 px-4 text-sm text-gray-600">
+                        <span>Showing page {currentPage} of {totalPages}</span>
                         <button
-                            onClick={() => setActiveTab("inter")}
-                            className={`pb-3 text-sm font-medium transition-colors relative ${
-                                activeTab === "inter"
-                                    ? "text-[#4726CD]"
-                                    : "text-gray-600 hover:text-gray-900"
-                            }`}
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
                         >
-                            Inter-Bank
-                            {activeTab === "inter" && (
-                                <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#4726CD]"></div>
-                            )}
+                            <ChevronLeft className="w-5 h-5" />
                         </button>
                         <button
-                            onClick={() => setActiveTab("intra")}
-                            className={`pb-3 text-sm font-medium transition-colors relative ${
-                                activeTab === "intra"
-                                    ? "text-[#4726CD]"
-                                    : "text-gray-600 hover:text-gray-900"
-                            }`}
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="p-1 hover:bg-gray-100 rounded disabled:opacity-50"
                         >
-                            Intra-Bank
-                            {activeTab === "intra" && (
-                                <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#4726CD]"></div>
-                            )}
+                            <ChevronRight className="w-5 h-5" />
                         </button>
                     </div>
-
-                    {/* Filters */}
-                    <div className="bg-gray-50 border-b border-gray-200 px-4 sm:px-6 py-4">
-                        <div className="overflow-x-auto">
-                            <div className="flex items-end gap-3 min-w-max">
-                            {/* Payment Gateway */}
-                            <div className="w-32">
-                                <label className="block text-xs font-medium text-gray-700 mb-2">Payment Gateway</label>
-                                <select
-                                    value={paymentGateway}
-                                    onChange={(e) => setPaymentGateway(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4726CD] focus:border-transparent bg-white"
-                                >
-                                    <option>NIP</option>
-                                    <option>NEFT</option>
-                                    <option>RTGS</option>
-                                </select>
-                            </div>
-
-                            {/* Transaction Flow */}
-                            <div className="w-32">
-                                <label className="block text-xs font-medium text-gray-700 mb-2">Transaction flow</label>
-                                <select
-                                    value={transactionFlow}
-                                    onChange={(e) => setTransactionFlow(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4726CD] focus:border-transparent bg-white"
-                                >
-                                    <option>Inward</option>
-                                    <option>Outward</option>
-                                </select>
-                            </div>
-
-                            {/* Search With */}
-                            <div className="w-40">
-                                <label className="block text-xs font-medium text-gray-700 mb-2">Search with:</label>
-                                <select
-                                    value={searchWith}
-                                    onChange={(e) => setSearchWith(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4726CD] focus:border-transparent bg-white"
-                                >
-                                    <option>Account Number</option>
-                                    <option>Session ID</option>
-                                </select>
-                            </div>
-
-                            {/* Account Number */}
-                            <div className="w-48">
-                                <label className="block text-xs font-medium text-gray-700 mb-2">Account number</label>
-                                <input
-                                    type="text"
-                                    value={accountNumber}
-                                    onChange={(e) => setAccountNumber(e.target.value)}
-                                    placeholder="Enter here"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4726CD] focus:border-transparent"
-                                />
-                            </div>
-
-                            {/* Start Date */}
-                            <div className="w-40">
-                                <label className="block text-xs font-medium text-gray-700 mb-2">Start date (From)</label>
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
-                                        placeholder="dd/mm/yyyy"
-                                        className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4726CD] focus:border-transparent"
-                                    />
-                                    <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                </div>
-                            </div>
-
-                            {/* Arrow */}
-                            <div className="pb-2">
-                                <ArrowRight className="w-5 h-5 text-gray-400" />
-                            </div>
-
-                            {/* End Date */}
-                            <div className="w-40">
-                                <label className="block text-xs font-medium text-gray-700 mb-2">End date (To)</label>
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        value={endDate}
-                                        onChange={(e) => setEndDate(e.target.value)}
-                                        placeholder="dd/mm/yyyy"
-                                        className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4726CD] focus:border-transparent"
-                                    />
-                                    <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                </div>
-                            </div>
-
-                            {/* Search Button */}
-                            <div className="pb-2">
-                                <button className="px-6 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors whitespace-nowrap">
-                                    Search
-                                </button>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-
-                    {/* Empty State */}
-                    <div className="flex flex-col items-center justify-center py-16 sm:py-20 px-4 text-center">
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#4726CD] bg-opacity-10 rounded-lg flex items-center justify-center mb-4">
-                            <FileText className="w-7 h-7 sm:w-8 sm:h-8 text-[#4726CD]" />
-                        </div>
-                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">No status populated.</h3>
-                        <p className="text-xs sm:text-sm text-gray-600 max-w-md">Search status with account number or session ID</p>
-                    </div>
-                </CardContent>
-            </Card>
+                </div>
+            )}
         </div>
     );
 };

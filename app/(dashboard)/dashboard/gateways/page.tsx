@@ -60,7 +60,6 @@ const GatewaysPage = () => {
                                     <TrendingDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-500 flex-shrink-0" />
                                     <span className="text-gray-600 whitespace-nowrap">Avl. Inward</span>
                                 </div>
-                                <div className="h-px flex-1 bg-gray-200 min-w-[20px]"></div>
                                 <div className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm">
                                     <span className="text-gray-600 whitespace-nowrap">Avl. Outward</span>
                                     <TrendingUp className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-500 flex-shrink-0" />
@@ -73,7 +72,7 @@ const GatewaysPage = () => {
                             </div>
 
                             {/* Delivery Time */}
-                            <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-200">
+                            <div className="flex items-center justify-between pt-2 sm:pt-3">
                                 <span className="text-xs sm:text-sm text-gray-600">Avg. delivery time</span>
                                 <span className="text-xs sm:text-sm font-semibold text-gray-900">{gateway.avgDeliveryTime}</span>
                             </div>

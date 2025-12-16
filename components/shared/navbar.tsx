@@ -31,29 +31,33 @@ const Navbar = ({ isSidebarOpen, toggleSidebar }: NavbarProps) => {
     };
 
     return (
-        <nav 
-            className={`fixed top-0 right-0 h-16 sm:h-20 bg-white border-b border-gray-200 z-40 transition-all duration-300 ${
-                isSidebarOpen ? 'left-72' : 'left-16'
-            }`}
-        >
-            <div className="h-full px-3 sm:px-6 flex items-center justify-between">
-                {/* Left Side - Title Only */}
-                <div className="flex items-center overflow-hidden">
-                    <h1 className="text-sm sm:text-base md:text-lg font-semibold text-[#4726CD] truncate">
-                        <span className="hidden sm:inline">Bank Transactions Gateway Portal</span>
-                        <span className="sm:hidden">BTG Portal</span>
+        <nav className={`fixed top-0 right-0 h-16 bg-white border-b border-[#D9D9D9] z-30 transition-all duration-300 ${isSidebarOpen ? 'lg:left-56' : 'left-0'}`}>
+            <div className="h-full px-4 sm:px-6 flex items-center justify-between">
+                {/* Left Side - Hamburger + Title */}
+                <div className="flex items-center gap-3">
+                    {/* Hamburger Menu Button */}
+                    <button 
+                        onClick={toggleSidebar}
+                        className="p-2 hover:bg-gray-100 rounded-lg lg:hidden"
+                    >
+                        <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <h1 className="text-base sm:text-lg font-semibold text-gray-900">
+                        Payment-Hub Admin
                     </h1>
                 </div>
 
                 {/* Right Side */}
                 <div className="flex items-center gap-2 sm:gap-4">
                     {/* Notification Bell */}
-                    <button className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors relative">
-                        <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                    <button className="p-2 sm:p-2.5 bg-[#FEEBEB] hover:bg-[#fde0e0] rounded-xl transition-colors relative">
+                        <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-[#F60E0E]" />
                     </button>
                     
-                    {/* Divider */}
-                    <div className="hidden sm:block h-8 w-px bg-gray-300"></div>
+                    {/* Divider - hidden on mobile */}
+                    <div className="hidden sm:block h-8 w-px bg-gray-200"></div>
 
                     {/* User Profile */}
                     <div className="relative" ref={dropdownRef}>
@@ -61,21 +65,21 @@ const Navbar = ({ isSidebarOpen, toggleSidebar }: NavbarProps) => {
                             onClick={() => setShowDropdown(!showDropdown)}
                             className="flex items-center gap-2 sm:gap-3 hover:bg-gray-50 rounded-lg px-1 sm:px-2 py-1 transition-colors"
                         >
-                            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-                                <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                            </div>
-                            <div className="hidden md:block text-left">
-                                <div className="text-sm font-medium text-gray-900">Sterling Administrator</div>
-                                <div className="text-xs text-gray-500">Corporate User</div>
+                            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gray-100 rounded-full flex items-center justify-center border border-gray-200">
+                                <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                             </div>
                             <svg 
-                                className={`hidden sm:block w-4 h-4 text-gray-600 transition-transform ${showDropdown ? 'rotate-180' : ''}`} 
+                                className={`hidden sm:block w-4 h-4 text-gray-400 transition-transform ${showDropdown ? 'rotate-180' : ''}`} 
                                 fill="none" 
                                 stroke="currentColor" 
                                 viewBox="0 0 24 24"
                             >
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
+                            <div className="hidden md:block text-left">
+                                <div className="text-sm font-medium text-gray-900">Sterling Administrator</div>
+                                <div className="text-xs text-gray-500">Corporate User</div>
+                            </div>
                         </button>
 
                         {/* Dropdown Menu */}
