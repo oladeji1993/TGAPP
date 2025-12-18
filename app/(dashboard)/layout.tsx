@@ -10,7 +10,7 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    
+
     // Set sidebar open by default on large screens
     useEffect(() => {
         const handleResize = () => {
@@ -20,10 +20,10 @@ export default function DashboardLayout({
                 setIsSidebarOpen(false);
             }
         };
-        
+
         // Initial check
         handleResize();
-        
+
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
@@ -34,7 +34,7 @@ export default function DashboardLayout({
         <div className="min-h-screen bg-gray-50">
             {/* Overlay for mobile */}
             {isSidebarOpen && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black/50 z-40 lg:hidden"
                     onClick={() => setIsSidebarOpen(false)}
                 />
@@ -44,9 +44,9 @@ export default function DashboardLayout({
             <Menu isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
             {/* Navbar */}
-            <Navbar 
-                isSidebarOpen={isSidebarOpen} 
-                toggleSidebar={toggleSidebar} 
+            <Navbar
+                isSidebarOpen={isSidebarOpen}
+                toggleSidebar={toggleSidebar}
             />
 
             {/* Main Content */}
