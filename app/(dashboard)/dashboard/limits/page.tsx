@@ -3,6 +3,7 @@
 import React from "react";
 import { DataTable, Column, Filter } from "@/components/ui/data-table";
 import { Search } from "lucide-react";
+import Image from "next/image";
 
 // Limit data type
 interface Limit {
@@ -93,8 +94,8 @@ const LimitsPage = () => {
                 onExport={handleExport}
                 showDateFilter={false}
                 rowActions={(item) => (
-                    <button className="p-1 hover:bg-gray-100 rounded-full">
-                        <Search className="w-4 h-4 text-gray-500" />
+                    <button className="p-1 hover:bg-gray-100 ml-2 rounded">
+                        <Image src="/dashboard/search.svg" alt="More" width={20} height={20}/>
                     </button>
                 )}
                 pageSize={10}

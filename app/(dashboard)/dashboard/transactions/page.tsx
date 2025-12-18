@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Search, ChevronDown, ChevronLeft, ChevronRight, Download, SlidersHorizontal } from "lucide-react";
+import Image from "next/image";
 
 // Transaction data type
 interface Transaction {
@@ -169,13 +170,8 @@ const TransactionsPage = () => {
             {!hasSearched ? (
                 /* Empty State */
                 <div className="flex flex-col items-center justify-center py-32 text-center border-t border-gray-200">
-                    <div className="w-16 h-16 mb-4">
-                        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="12" y="8" width="40" height="48" rx="4" stroke="#F60E0E" strokeWidth="2"/>
-                            <line x1="20" y1="20" x2="44" y2="20" stroke="#F60E0E" strokeWidth="2"/>
-                            <line x1="20" y1="28" x2="44" y2="28" stroke="#F60E0E" strokeWidth="2"/>
-                            <line x1="20" y1="36" x2="36" y2="36" stroke="#F60E0E" strokeWidth="2"/>
-                        </svg>
+                    <div className="mb-4">
+                        <Image src="/dashboard/transaction-icon.svg" alt="More" width={50} height={50}/>
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">No transactions listed</h3>
                     <p className="text-sm text-gray-500 max-w-md">

@@ -35,15 +35,15 @@ const menuItems: MenuItem[] = [
             { icon: '/dashboard/banks.svg', label: "Banks", href: "/dashboard/banks" },
             { icon: '/dashboard/providers.svg', label: "Providers", href: "/dashboard/providers" },
             { icon: '/dashboard/routing.svg', label: "Routing Rules", href: "/dashboard/routing-rules" },
-            { icon: '/dashboard/channels.svg', label: "Channels", href: "/dashboard/channels" },
         ]
     },
+    { icon: '/dashboard/channels.svg', label: "Channels", href: "/dashboard/channels" },
     { icon: '/dashboard/audit.svg', label: "Audit Logs", href: "/dashboard/audit-logs" },
     {
         icon: '/dashboard/settings.svg',
         label: "Settings",
         subItems: [
-            { icon: '/dashboard/users.svg', label: "User Management", href: "/dashboard/user-management" },
+            { icon: '/dashboard/users.svg', label: "User Mgt", href: "/dashboard/user-management" },
             { icon: '/dashboard/limit.svg', label: "Limits", href: "/dashboard/limits" },
         ]
     },
