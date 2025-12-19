@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { DataTable, Column, Filter } from "@/components/ui/data-table";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Eye, Edit, UserX } from "lucide-react";
+import ViewProviderModal from "./modals/ViewProviderModal";
 
 // Provider data type
 interface Provider {
@@ -34,14 +35,12 @@ const providersData: Provider[] = [
 const Toggle = ({ checked, onChange }: { checked: boolean; onChange: () => void }) => (
     <button
         onClick={onChange}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-            checked ? 'bg-[#22C55E]' : 'bg-gray-200'
-        }`}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${checked ? 'bg-[#22C55E]' : 'bg-gray-200'
+            }`}
     >
         <span
-            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-transform ${
-                checked ? 'translate-x-5' : 'translate-x-0.5'
-            }`}
+            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-transform ${checked ? 'translate-x-5' : 'translate-x-0.5'
+                }`}
         />
     </button>
 );
@@ -55,13 +54,12 @@ const columns: Column<Provider>[] = [
     { key: "isDefault", header: "Default..." },
     { key: "successRate", header: "% Success" },
     { key: "avgResponse", header: "Avg. Res..." },
-    { 
-        key: "status", 
+    {
+        key: "status",
         header: "Status",
         render: (item) => (
-            <span className={`text-sm font-medium ${
-                item.status === "Active" ? "text-[#27920B]" : "text-red-500"
-            }`}>
+            <span className={`text-sm font-medium ${item.status === "Active" ? "text-[#27920B]" : "text-red-500"
+                }`}>
                 {item.status}
             </span>
         )
@@ -70,7 +68,7 @@ const columns: Column<Provider>[] = [
         key: "enabled",
         header: "",
         render: (item) => (
-            <Toggle checked={item.enabled} onChange={() => {}} />
+            <Toggle checked={item.enabled} onChange={() => { }} />
         )
     },
 ];
@@ -105,26 +103,104 @@ const filters: Filter[] = [
 ];
 
 const PaymentProviders = () => {
+    const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+    const [isViewProviderModalOpen, setIsViewProviderModalOpen] = useState(false);
+    const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+
     const handleExport = () => {
         console.log("Exporting data...");
     };
 
+    const handleViewProvider = (provider: Provider) => {
+        setSelectedProvider(provider);
+        setIsViewProviderModalOpen(true);
+        setOpenDropdown(null);
+    };
+
+    const handleEditProvider = (provider: Provider) => {
+        console.log("Editing provider:", provider);
+        setOpenDropdown(null);
+    };
+
+    const handleEditFromView = (provider: Provider) => {
+        setSelectedProvider(provider);
+        setIsViewProviderModalOpen(false);
+        // Here you would open edit modal
+        console.log("Editing provider from view:", provider);
+    };
+
+    const handleCloseViewModal = () => {
+        setIsViewProviderModalOpen(false);
+        setSelectedProvider(null);
+    };
+
+    const handleDeactivateProvider = (provider: Provider) => {
+        console.log("Deactivating provider:", provider);
+        setOpenDropdown(null);
+    };
+
     return (
-        <DataTable
-            data={providersData}
-            columns={columns}
-            filters={filters}
-            searchPlaceholder="Search user name,..."
-            showDateFilter={false}
-            showRefresh={false}
-            onExport={handleExport}
-            rowActions={(item) => (
-                <button className="p-1 hover:bg-gray-100 rounded">
-                    <MoreVertical className="w-4 h-4 text-gray-500" />
-                </button>
-            )}
-            pageSize={10}
-        />
+        <>
+            <DataTable
+                data={providersData}
+                columns={columns}
+                filters={filters}
+                searchPlaceholder="Search user name,..."
+                showDateFilter={false}
+                showRefresh={false}
+                onExport={handleExport}
+                rowActions={(item) => (
+                    <div className="relative">
+                        <button
+                            className="p-1 hover:bg-gray-100 rounded"
+                            onClick={() => setOpenDropdown(openDropdown === item.id ? null : item.id)}
+                        >
+                            <MoreVertical className="w-4 h-4 text-gray-500" />
+                        </button>
+
+                        {openDropdown === item.id && (
+                            <>
+                                <div
+                                    className="fixed inset-0 z-10"
+                                    onClick={() => setOpenDropdown(null)}
+                                />
+                                <div className="absolute right-0 top-8 z-20 w-52 bg-white border border-gray-200 rounded-lg shadow-lg py-1">
+                                    <button
+                                        onClick={() => handleViewProvider(item)}
+                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    >
+                                        <Eye className="w-4 h-4" />
+                                        View Provider Details
+                                    </button>
+                                    <button
+                                        onClick={() => handleEditProvider(item)}
+                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    >
+                                        <Edit className="w-4 h-4" />
+                                        Edit Provider Details
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeactivateProvider(item)}
+                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                    >
+                                        <UserX className="w-4 h-4" />
+                                        Deactivate Provider
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                )}
+                pageSize={10}
+            />
+
+            <ViewProviderModal
+                isOpen={isViewProviderModalOpen}
+                onClose={handleCloseViewModal}
+                provider={selectedProvider}
+                onEdit={handleEditFromView}
+            />
+        </>
     );
 };
 
