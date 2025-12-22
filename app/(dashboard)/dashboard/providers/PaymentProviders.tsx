@@ -3,7 +3,15 @@
 import React, { useState } from "react";
 import { DataTable, Column, Filter } from "@/components/ui/data-table";
 import { MoreVertical, Eye, Edit, UserX } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import ViewProviderModal from "./modals/ViewProviderModal";
+import AddPaymentProviderModal from "./modals/AddPaymentProviderModal";
+import DeactivateBankModal from "@/components/modals/DeactivateBankModal";
 
 // Provider data type
 interface Provider {
@@ -45,34 +53,6 @@ const Toggle = ({ checked, onChange }: { checked: boolean; onChange: () => void 
     </button>
 );
 
-// Column definitions
-const columns: Column<Provider>[] = [
-    { key: "name", header: "Provider Name", sortable: true },
-    { key: "code", header: "Provider Code" },
-    { key: "banksSupported", header: "Banks Supported" },
-    { key: "channelsSupported", header: "Channels Supported" },
-    { key: "isDefault", header: "Default..." },
-    { key: "successRate", header: "% Success" },
-    { key: "avgResponse", header: "Avg. Res..." },
-    {
-        key: "status",
-        header: "Status",
-        render: (item) => (
-            <span className={`text-sm font-medium ${item.status === "Active" ? "text-[#27920B]" : "text-red-500"
-                }`}>
-                {item.status}
-            </span>
-        )
-    },
-    {
-        key: "enabled",
-        header: "",
-        render: (item) => (
-            <Toggle checked={item.enabled} onChange={() => { }} />
-        )
-    },
-];
-
 // Filter definitions
 const filters: Filter[] = [
     {
@@ -103,9 +83,50 @@ const filters: Filter[] = [
 ];
 
 const PaymentProviders = () => {
+    const [providers, setProviders] = useState<Provider[]>(providersData);
     const [openDropdown, setOpenDropdown] = useState<number | null>(null);
     const [isViewProviderModalOpen, setIsViewProviderModalOpen] = useState(false);
+    const [isEditProviderModalOpen, setIsEditProviderModalOpen] = useState(false);
+    const [isDeactivateProviderModalOpen, setIsDeactivateProviderModalOpen] = useState(false);
     const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+
+    const handleToggle = (providerId: number) => {
+        setProviders(prevProviders =>
+            prevProviders.map(provider =>
+                provider.id === providerId
+                    ? { ...provider, enabled: !provider.enabled }
+                    : provider
+            )
+        );
+    };
+
+    // Column definitions
+    const columns: Column<Provider>[] = [
+        { key: "name", header: "Provider Name", sortable: true },
+        { key: "code", header: "Provider Code" },
+        { key: "banksSupported", header: "Banks Supported" },
+        { key: "channelsSupported", header: "Channels Supported" },
+        { key: "isDefault", header: "Default..." },
+        { key: "successRate", header: "% Success" },
+        { key: "avgResponse", header: "Avg. Res..." },
+        {
+            key: "status",
+            header: "Status",
+            render: (item) => (
+                <span className={`text-sm font-medium ${item.status === "Active" ? "text-[#27920B]" : "text-red-500"
+                    }`}>
+                    {item.status}
+                </span>
+            )
+        },
+        {
+            key: "enabled",
+            header: "",
+            render: (item) => (
+                <Toggle checked={item.enabled} onChange={() => handleToggle(item.id)} />
+            )
+        },
+    ];
 
     const handleExport = () => {
         console.log("Exporting data...");
@@ -118,15 +139,15 @@ const PaymentProviders = () => {
     };
 
     const handleEditProvider = (provider: Provider) => {
-        console.log("Editing provider:", provider);
+        setSelectedProvider(provider);
+        setIsEditProviderModalOpen(true);
         setOpenDropdown(null);
     };
 
     const handleEditFromView = (provider: Provider) => {
         setSelectedProvider(provider);
         setIsViewProviderModalOpen(false);
-        // Here you would open edit modal
-        console.log("Editing provider from view:", provider);
+        setIsEditProviderModalOpen(true);
     };
 
     const handleCloseViewModal = () => {
@@ -134,15 +155,41 @@ const PaymentProviders = () => {
         setSelectedProvider(null);
     };
 
+    const handleCloseEditModal = () => {
+        setIsEditProviderModalOpen(false);
+        setSelectedProvider(null);
+    };
+
+    const handleUpdateProvider = (formData: any, paymentTypes: any[]) => {
+        console.log("Updated provider data:", formData);
+        console.log("Updated payment types:", paymentTypes);
+        // Here you would make the API call to update the provider
+        setIsEditProviderModalOpen(false);
+        setSelectedProvider(null);
+    };
+
     const handleDeactivateProvider = (provider: Provider) => {
-        console.log("Deactivating provider:", provider);
+        setSelectedProvider(provider);
+        setIsDeactivateProviderModalOpen(true);
         setOpenDropdown(null);
+    };
+
+    const handleConfirmDeactivate = () => {
+        console.log("Deactivating provider:", selectedProvider);
+        // Here you would make the API call to deactivate the provider
+        setIsDeactivateProviderModalOpen(false);
+        setSelectedProvider(null);
+    };
+
+    const handleCloseDeactivateModal = () => {
+        setIsDeactivateProviderModalOpen(false);
+        setSelectedProvider(null);
     };
 
     return (
         <>
             <DataTable
-                data={providersData}
+                data={providers}
                 columns={columns}
                 filters={filters}
                 searchPlaceholder="Search user name,..."
@@ -150,46 +197,27 @@ const PaymentProviders = () => {
                 showRefresh={false}
                 onExport={handleExport}
                 rowActions={(item) => (
-                    <div className="relative">
-                        <button
-                            className="p-1 hover:bg-gray-100 rounded"
-                            onClick={() => setOpenDropdown(openDropdown === item.id ? null : item.id)}
-                        >
-                            <MoreVertical className="w-4 h-4 text-gray-500" />
-                        </button>
-
-                        {openDropdown === item.id && (
-                            <>
-                                <div
-                                    className="fixed inset-0 z-10"
-                                    onClick={() => setOpenDropdown(null)}
-                                />
-                                <div className="absolute right-0 top-8 z-20 w-52 bg-white border border-gray-200 rounded-lg shadow-lg py-1">
-                                    <button
-                                        onClick={() => handleViewProvider(item)}
-                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                    >
-                                        <Eye className="w-4 h-4" />
-                                        View Provider Details
-                                    </button>
-                                    <button
-                                        onClick={() => handleEditProvider(item)}
-                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                    >
-                                        <Edit className="w-4 h-4" />
-                                        Edit Provider Details
-                                    </button>
-                                    <button
-                                        onClick={() => handleDeactivateProvider(item)}
-                                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                                    >
-                                        <UserX className="w-4 h-4" />
-                                        Deactivate Provider
-                                    </button>
-                                </div>
-                            </>
-                        )}
-                    </div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button className="p-1 hover:bg-gray-100 rounded">
+                                <MoreVertical className="w-4 h-4 text-gray-500" />
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleViewProvider(item)}>
+                                <Eye className="w-4 h-4 mr-2" />
+                                View Provider Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditProvider(item)}>
+                                <Edit className="w-4 h-4 mr-2" />
+                                Edit Provider Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDeactivateProvider(item)}>
+                                <UserX className="w-4 h-4 mr-2" />
+                                Deactivate Provider
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 )}
                 pageSize={10}
             />
@@ -199,6 +227,24 @@ const PaymentProviders = () => {
                 onClose={handleCloseViewModal}
                 provider={selectedProvider}
                 onEdit={handleEditFromView}
+            />
+
+            <AddPaymentProviderModal
+                isOpen={isEditProviderModalOpen}
+                onClose={handleCloseEditModal}
+                provider={selectedProvider}
+                mode="edit"
+                onNextStep={handleUpdateProvider}
+            />
+
+            <DeactivateBankModal
+                isOpen={isDeactivateProviderModalOpen}
+                onClose={handleCloseDeactivateModal}
+                item={selectedProvider}
+                onConfirm={handleConfirmDeactivate}
+                itemType="Provider"
+                title="Deactivate Payment Provider?"
+                description="Are you sure you want to deactivate this payment provider?"
             />
         </>
     );

@@ -205,7 +205,7 @@ export function DataTable<T extends { id?: string | number }>({
             </div>
 
             {/* Table */}
-            <div className="border-t border-b border-gray-200 overflow-hidden">
+            <div className="border-t border-b border-gray-200">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-[#F5F5F5] border-b border-gray-200">
@@ -258,19 +258,18 @@ export function DataTable<T extends { id?: string | number }>({
                                     return (
                                         <tr
                                             key={rowId}
-                                            className={`border-b border-gray-100 transition-colors ${
-                                                isEvenRow ? 'bg-[#F9F9F9]' : 'bg-white'
-                                            } hover:bg-gray-100 ${
-                                                onRowClick ? "cursor-pointer" : ""
-                                            }`}
+                                            className={`border-b border-gray-100 transition-colors ${isEvenRow ? 'bg-[#F9F9F9]' : 'bg-white'
+                                                } hover:bg-gray-100 ${onRowClick ? "cursor-pointer" : ""
+                                                }`}
                                             onClick={() => onRowClick?.(item)}
                                         >
                                             {selectable && (
-                                                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                                <td className="px-4 py-3">
                                                     <input
                                                         type="checkbox"
                                                         checked={selectedRows.has(rowId)}
                                                         onChange={() => handleSelectRow(rowId)}
+                                                        onClick={(e) => e.stopPropagation()}
                                                         className="w-4 h-4 rounded border-gray-300"
                                                     />
                                                 </td>
@@ -286,7 +285,7 @@ export function DataTable<T extends { id?: string | number }>({
                                                 </td>
                                             ))}
                                             {rowActions && (
-                                                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                                <td className="px-4 py-3 relative" onClick={(e) => e.stopPropagation()}>
                                                     {rowActions(item)}
                                                 </td>
                                             )}

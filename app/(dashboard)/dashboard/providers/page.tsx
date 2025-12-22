@@ -89,30 +89,27 @@ const ProvidersPage = () => {
             {/* Dynamic Content */}
             {activeTab === 'payment' ? <PaymentProviders /> : <VASProviders />}
 
-            {/* Add Provider Modal - Only show for payment providers for now */}
-            {activeTab === 'payment' && (
-                <>
-                    <AddPaymentProviderModal
-                        isOpen={isAddProviderModalOpen}
-                        onClose={handleCloseModal}
-                        onNextStep={handleNextStep}
-                    />
-                    <TransactionRulesModal
-                        isOpen={isTransactionRulesModalOpen}
-                        onClose={handleCloseModal}
-                        onGoBack={handleGoBackToProvider}
-                        onContinue={handleTransactionRulesNext}
-                    />
-                    <PreviewAndCreateModal
-                        isOpen={isPreviewModalOpen}
-                        onClose={handleCloseModal}
-                        onGoBack={handleGoBackToRules}
-                        providerData={providerFormData?.formData}
-                        paymentTypes={providerFormData?.paymentTypes || []}
-                        transactionRules={transactionRulesData}
-                    />
-                </>
-            )}
+            {/* Add Provider Modal - Show for both payment and VAS providers */}
+            <AddPaymentProviderModal
+                isOpen={isAddProviderModalOpen}
+                onClose={handleCloseModal}
+                onNextStep={handleNextStep}
+                providerType={activeTab}
+            />
+            <TransactionRulesModal
+                isOpen={isTransactionRulesModalOpen}
+                onClose={handleCloseModal}
+                onGoBack={handleGoBackToProvider}
+                onContinue={handleTransactionRulesNext}
+            />
+            <PreviewAndCreateModal
+                isOpen={isPreviewModalOpen}
+                onClose={handleCloseModal}
+                onGoBack={handleGoBackToRules}
+                providerData={providerFormData?.formData}
+                paymentTypes={providerFormData?.paymentTypes || []}
+                transactionRules={transactionRulesData}
+            />
         </div>
     );
 };

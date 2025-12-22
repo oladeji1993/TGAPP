@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { DataTable, Column, Filter } from "@/components/ui/data-table";
 import { Search } from "lucide-react";
 import Image from "next/image";
+import AuditLogDetailsModal from "./AuditLogDetailsModal";
 
 // Audit log data type
 interface AuditLog {
@@ -38,8 +39,8 @@ const columns: Column<AuditLog>[] = [
     { key: "performedBy", header: "Performed by" },
     { key: "actionType", header: "Action Type" },
     { key: "description", header: "Description" },
-    { 
-        key: "module", 
+    {
+        key: "module",
         header: "Module",
         sortable: true,
     },
@@ -70,12 +71,20 @@ const filters: Filter[] = [
 ];
 
 const AuditLogsPage = () => {
+    const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+
     const handleRefresh = () => {
         console.log("Refreshing data...");
     };
 
     const handleExport = () => {
         console.log("Exporting data...");
+    };
+
+    const handleViewDetails = (item: AuditLog) => {
+        setSelectedLog(item);
+        setIsDetailsModalOpen(true);
     };
 
     return (
@@ -92,11 +101,23 @@ const AuditLogsPage = () => {
                 onRefresh={handleRefresh}
                 onExport={handleExport}
                 rowActions={(item) => (
-                    <button className="p-1 hover:bg-gray-100 ml-2 rounded">
-                        <Image src="/dashboard/search.svg" alt="More" width={20} height={20}/>
+                    <button
+                        className="p-1 hover:bg-gray-100 ml-2 rounded"
+                        onClick={() => handleViewDetails(item)}
+                    >
+                        <Image src="/dashboard/search.svg" alt="View Details" width={20} height={20} />
                     </button>
                 )}
                 pageSize={10}
+            />
+
+            <AuditLogDetailsModal
+                isOpen={isDetailsModalOpen}
+                onClose={() => {
+                    setIsDetailsModalOpen(false);
+                    setSelectedLog(null);
+                }}
+                auditLog={selectedLog}
             />
         </div>
     );

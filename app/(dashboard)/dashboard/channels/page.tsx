@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { DataTable, Column, Filter } from "@/components/ui/data-table";
 import { Plus, Search } from "lucide-react";
 import Image from "next/image";
+import ChannelDetailsModal from "./ChannelDetailsModal";
 
 // Channel data type
 interface Channel {
@@ -61,8 +62,31 @@ const filters: Filter[] = [
 ];
 
 const ChannelsPage = () => {
+    const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+
     const handleExport = () => {
         console.log("Exporting data...");
+    };
+
+    const handleViewDetails = (item: Channel) => {
+        setSelectedChannel(item);
+        setIsDetailsModalOpen(true);
+    };
+
+    const handleEdit = (channel: Channel) => {
+        console.log("Editing channel:", channel);
+        // Add edit logic here
+    };
+
+    const handleDeactivate = (channel: Channel) => {
+        console.log("Deactivating channel:", channel);
+        // Add deactivate logic here
+    };
+
+    const handleRemove = (channel: Channel) => {
+        console.log("Removing channel:", channel);
+        // Add remove logic here
     };
 
     return (
@@ -86,11 +110,38 @@ const ChannelsPage = () => {
                 showRefresh={false}
                 onExport={handleExport}
                 rowActions={(item) => (
-                    <button className="p-1 hover:bg-gray-100 ml-2 rounded">
-                        <Image src="/dashboard/search.svg" alt="More" width={20} height={20}/>
+                    <button
+                        className="p-1 hover:bg-gray-100 ml-2 rounded"
+                        onClick={() => handleViewDetails(item)}
+                    >
+                        <Image src="/dashboard/search.svg" alt="View Details" width={20} height={20} />
                     </button>
                 )}
                 pageSize={10}
+            />
+
+            <ChannelDetailsModal
+                isOpen={isDetailsModalOpen}
+                onClose={() => {
+                    setIsDetailsModalOpen(false);
+                    setSelectedChannel(null);
+                }}
+                channel={selectedChannel}
+                onEdit={(channel) => {
+                    setIsDetailsModalOpen(false);
+                    setSelectedChannel(null);
+                    handleEdit(channel);
+                }}
+                onDeactivate={(channel) => {
+                    setIsDetailsModalOpen(false);
+                    setSelectedChannel(null);
+                    handleDeactivate(channel);
+                }}
+                onRemove={(channel) => {
+                    setIsDetailsModalOpen(false);
+                    setSelectedChannel(null);
+                    handleRemove(channel);
+                }}
             />
         </div>
     );

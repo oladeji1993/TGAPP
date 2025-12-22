@@ -241,8 +241,9 @@ const BanksPage = () => {
             <DeactivateBankModal
                 isOpen={isDeactivateBankModalOpen}
                 onClose={handleCloseDeactivateModal}
-                bank={selectedBank}
+                item={selectedBank}
                 onConfirm={handleConfirmDeactivate}
+                itemType="Bank"
             />
         </div>
     );

@@ -1,13 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, ChevronDown, Plus } from "lucide-react";
 import Image from "next/image";
+
+interface Provider {
+    id: number;
+    name: string;
+    code: string;
+    banksSupported: number;
+    channelsSupported: number;
+    isDefault: string;
+    successRate: string;
+    avgResponse: string;
+    status: string;
+    enabled: boolean;
+}
 
 interface AddPaymentProviderModalProps {
     isOpen: boolean;
     onClose: () => void;
     onNextStep?: (formData: any, paymentTypes: PaymentType[]) => void;
+    provider?: Provider | null;
+    mode?: 'add' | 'edit';
+    providerType?: 'payment' | 'vas';
 }
 
 interface PaymentType {
@@ -16,7 +32,14 @@ interface PaymentType {
     currency: string;
 }
 
-const AddPaymentProviderModal: React.FC<AddPaymentProviderModalProps> = ({ isOpen, onClose, onNextStep }) => {
+const AddPaymentProviderModal: React.FC<AddPaymentProviderModalProps> = ({
+    isOpen,
+    onClose,
+    onNextStep,
+    provider = null,
+    mode = 'add',
+    providerType = 'payment'
+}) => {
     const [formData, setFormData] = useState({
         providerName: "",
         providerCode: "",
@@ -31,6 +54,32 @@ const AddPaymentProviderModal: React.FC<AddPaymentProviderModalProps> = ({ isOpe
     const connectionOptions = ["API", "SDK", "Webhook", "Direct Integration"];
     const paymentTypeOptions = ["Transfer", "Card Payment", "USSD", "Bank Transfer", "Mobile Money"];
     const currencyOptions = ["NGN", "USD", "EUR", "GBP"];
+
+    // Populate form when editing
+    useEffect(() => {
+        if (provider && mode === 'edit' && isOpen) {
+            setFormData({
+                providerName: provider.name,
+                providerCode: provider.code,
+                description: `Description for ${provider.name} payment provider`,
+                connection: "API", // Default or from provider data
+            });
+
+            // Set default payment type based on provider
+            setPaymentTypes([
+                { id: "1", type: "Transfer", currency: "NGN" }
+            ]);
+        } else if (!isOpen || mode === 'add') {
+            // Reset form for add mode or when closing
+            setFormData({
+                providerName: "",
+                providerCode: "",
+                description: "",
+                connection: "",
+            });
+            setPaymentTypes([{ id: "1", type: "", currency: "NGN" }]);
+        }
+    }, [provider, mode, isOpen]);
 
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -65,7 +114,7 @@ const AddPaymentProviderModal: React.FC<AddPaymentProviderModalProps> = ({ isOpe
     };
 
     const handleNextSetup = () => {
-        console.log("Form data:", formData);
+        console.log(`${mode === 'edit' ? 'Updating' : 'Creating'} provider:`, formData);
         console.log("Payment types:", paymentTypes);
 
         if (onNextStep) {
@@ -74,6 +123,11 @@ const AddPaymentProviderModal: React.FC<AddPaymentProviderModalProps> = ({ isOpe
             onClose();
         }
     };
+
+    const isEditMode = mode === 'edit';
+    const providerTypeText = providerType === 'vas' ? 'VAS Provider' : 'Payment Provider';
+    const modalTitle = isEditMode ? `Edit ${providerTypeText}` : `Add New ${providerTypeText}`;
+    const buttonText = isEditMode ? "Update Provider" : "Next Setup";
 
     if (!isOpen) return null;
 
@@ -99,7 +153,7 @@ const AddPaymentProviderModal: React.FC<AddPaymentProviderModalProps> = ({ isOpe
                     <div className="flex justify-between gap-2 sm:gap-4 w-full">
                         <div className="flex items-center bg-[#FEEBEB] rounded-b-sm flex-1 p-1.5 gap-2">
                             <Image src="/dashboard/info.svg" alt="Info" width={20} height={20} />
-                            <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">Add New Payment Provider</h2>
+                            <h2 className="text-base sm:text-lg font-semibold text-gray-900 truncate">{modalTitle}</h2>
                         </div>
                         <button onClick={onClose} className="p-2 bg-[#F0F0F0] hover:bg-gray-100 rounded flex-shrink-0">
                             <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
@@ -116,7 +170,7 @@ const AddPaymentProviderModal: React.FC<AddPaymentProviderModalProps> = ({ isOpe
                             <div className="space-y-3 sm:space-y-4">
                                 {/* Provider Name */}
                                 <div>
-                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Payment Provider Name</label>
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">{providerTypeText} Name</label>
                                     <input
                                         type="text"
                                         placeholder="Enter here"
@@ -128,7 +182,7 @@ const AddPaymentProviderModal: React.FC<AddPaymentProviderModalProps> = ({ isOpe
 
                                 {/* Provider Code */}
                                 <div>
-                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Payment Provider Code</label>
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">{providerTypeText} Code</label>
                                     <input
                                         type="text"
                                         placeholder="Enter here"
@@ -245,7 +299,7 @@ const AddPaymentProviderModal: React.FC<AddPaymentProviderModalProps> = ({ isOpe
                             onClick={handleNextSetup}
                             className="w-full sm:flex-1 px-4 py-2 sm:py-2.5 bg-gray-900 text-white rounded-md hover:bg-gray-800 font-medium text-xs sm:text-sm"
                         >
-                            Next Setup
+                            {buttonText}
                         </button>
                     </div>
                 </div>
