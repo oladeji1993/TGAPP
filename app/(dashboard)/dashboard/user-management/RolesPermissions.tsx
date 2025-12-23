@@ -1,8 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { DataTable, Column, Filter } from "@/components/ui/data-table";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Eye, Edit, UserX } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import ViewRoleModal from "./modals/ViewRoleModal";
+import AddRoleModal from "./modals/AddRoleModal";
+import DeactivateRoleModal from "./modals/DeactivateRoleModal";
 
 // Role data type
 interface Role {
@@ -33,8 +42,8 @@ const columns: Column<Role>[] = [
     { key: "lastModifiedOn", header: "Last Modified On" },
     { key: "noOfUsers", header: "No. of Users" },
     { key: "accessModules", header: "Access Mo..." },
-    { 
-        key: "status", 
+    {
+        key: "status",
         header: "Status",
         render: (item) => (
             <span className="text-[#27920B] text-sm font-medium">
@@ -57,26 +66,136 @@ const filters: Filter[] = [
 ];
 
 const RolesPermissions = () => {
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
+    const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+    const [editingRole, setEditingRole] = useState<Role | null>(null);
+    const [deactivatingRole, setDeactivatingRole] = useState<Role | null>(null);
+
     const handleExport = () => {
         console.log("Exporting data...");
     };
 
+    const handleViewDetails = (role: Role) => {
+        setSelectedRole(role);
+        setIsViewModalOpen(true);
+    };
+
+    const handleEditRole = (role: Role) => {
+        setEditingRole(role);
+        setIsEditModalOpen(true);
+    };
+
+    const handleDeactivateRole = (role: Role) => {
+        setDeactivatingRole(role);
+        setIsDeactivateModalOpen(true);
+    };
+
+    const handleRemoveRole = (role: Role) => {
+        console.log("Removing role:", role);
+        // Add your remove role logic here
+    };
+
+    const closeViewModal = () => {
+        setIsViewModalOpen(false);
+        setSelectedRole(null);
+    };
+
+    const closeEditModal = () => {
+        setIsEditModalOpen(false);
+        setEditingRole(null);
+    };
+
+    const closeDeactivateModal = () => {
+        setIsDeactivateModalOpen(false);
+        setDeactivatingRole(null);
+    };
+
+    const confirmDeactivateRole = () => {
+        console.log("Deactivating role:", deactivatingRole);
+        // Add your actual deactivate role logic here
+        // You would typically make an API call here
+    };
+
+    const handleUpdateRole = (roleData: { name: string; description: string; permissions: any[] }) => {
+        console.log("Updating role:", editingRole?.id, "with data:", roleData);
+        // Add logic to update existing role
+        // You would typically make an API call here
+        closeEditModal();
+    };
+
     return (
-        <DataTable
-            data={rolesData}
-            columns={columns}
-            filters={filters}
-            searchPlaceholder="Search"
-            showDateFilter={false}
-            showRefresh={false}
-            onExport={handleExport}
-            rowActions={(item) => (
-                <button className="p-1 hover:bg-gray-100 rounded">
-                    <MoreVertical className="w-4 h-4 text-gray-500" />
-                </button>
-            )}
-            pageSize={10}
-        />
+        <>
+            <DataTable
+                data={rolesData}
+                columns={columns}
+                filters={filters}
+                searchPlaceholder="Search"
+                showDateFilter={false}
+                showRefresh={false}
+                onExport={handleExport}
+                rowActions={(item) => (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button className="p-1 hover:bg-gray-100 rounded">
+                                <MoreVertical className="w-4 h-4 text-gray-500" />
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem
+                                onClick={() => handleViewDetails(item)}
+                                className="cursor-pointer"
+                            >
+                                <Eye className="w-4 h-4 mr-2" />
+                                View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => handleEditRole(item)}
+                                className="cursor-pointer"
+                            >
+                                <Edit className="w-4 h-4 mr-2" />
+                                Edit Role Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => handleDeactivateRole(item)}
+                                className="cursor-pointer text-red-600 focus:text-red-600"
+                            >
+                                <UserX className="w-4 h-4 mr-2" />
+                                Deactivate Role
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                )}
+                pageSize={10}
+            />
+
+            {/* View Role Modal */}
+            <ViewRoleModal
+                isOpen={isViewModalOpen}
+                onClose={closeViewModal}
+                role={selectedRole}
+                onEdit={handleEditRole}
+                onDeactivate={handleDeactivateRole}
+                onRemove={handleRemoveRole}
+            />
+
+            {/* Edit Role Modal */}
+            <AddRoleModal
+                isOpen={isEditModalOpen}
+                onClose={closeEditModal}
+                onAddRole={handleUpdateRole}
+                editRole={editingRole}
+            />
+
+            {/* Deactivate Role Modal */}
+            <DeactivateRoleModal
+                isOpen={isDeactivateModalOpen}
+                onClose={closeDeactivateModal}
+                role={deactivatingRole}
+                onConfirm={confirmDeactivateRole}
+            />
+        </>
     );
 };
 

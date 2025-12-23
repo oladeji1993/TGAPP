@@ -59,25 +59,24 @@ const PaymentTypesTab: React.FC<PaymentTypesTabProps> = ({ channelName }) => {
                             <div className="col-span-3">
                                 <span className="text-sm font-medium text-gray-900">{paymentType.type}</span>
                             </div>
-                            
+
                             <div className="col-span-2">
                                 <span className="text-sm text-gray-900">{paymentType.currency}</span>
                             </div>
-                            
+
                             <div className="col-span-3">
                                 <span className="text-sm text-gray-900">{paymentType.defaultProvider}</span>
                             </div>
-                            
+
                             <div className="col-span-2">
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                    paymentType.status === 'Active' 
-                                        ? 'bg-green-100 text-green-800' 
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${paymentType.status === 'Active'
+                                        ? 'bg-green-100 text-green-800'
                                         : 'bg-red-100 text-red-800'
-                                }`}>
+                                    }`}>
                                     {paymentType.status}
                                 </span>
                             </div>
-                            
+
                             <div className="col-span-2 flex justify-end">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -92,7 +91,7 @@ const PaymentTypesTab: React.FC<PaymentTypesTabProps> = ({ channelName }) => {
                                         <DropdownMenuItem onClick={() => handleAction('disable', paymentType)}>
                                             Disable
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem 
+                                        <DropdownMenuItem
                                             onClick={() => handleAction('remove', paymentType)}
                                             className="text-red-600 hover:text-red-700"
                                         >

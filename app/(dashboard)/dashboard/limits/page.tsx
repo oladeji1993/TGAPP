@@ -1,9 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { DataTable, Column, Filter } from "@/components/ui/data-table";
-import { Search } from "lucide-react";
+import { MoreVertical, Eye, Edit, UserX } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Image from "next/image";
+import LimitDetailsModal from "./modals/LimitDetailsModal";
 
 // Limit data type
 interface Limit {
@@ -32,15 +39,14 @@ const columns: Column<Limit>[] = [
     { key: "minAmount", header: "Min Amount" },
     { key: "maxAmount", header: "Max Amount" },
     { key: "dailyLimit", header: "Daily Limit" },
-    { 
-        key: "status", 
+    {
+        key: "status",
         header: "Status",
         render: (item) => (
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                item.status === "Active" 
-                    ? "bg-green-100 text-green-700" 
-                    : "bg-gray-100 text-gray-700"
-            }`}>
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.status === "Active"
+                ? "bg-green-100 text-green-700"
+                : "bg-gray-100 text-gray-700"
+                }`}>
                 {item.status}
             </span>
         )
@@ -71,6 +77,9 @@ const filters: Filter[] = [
 ];
 
 const LimitsPage = () => {
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [selectedLimit, setSelectedLimit] = useState<Limit | null>(null);
+
     const handleRefresh = () => {
         console.log("Refreshing data...");
     };
@@ -79,28 +88,92 @@ const LimitsPage = () => {
         console.log("Exporting data...");
     };
 
-    return (
-        <div className="space-y-6">
-            {/* Header */}
-            <h1 className="text-2xl font-bold text-gray-900">Limits</h1>
+    const handleViewDetails = (limit: Limit) => {
+        setSelectedLimit(limit);
+        setIsDetailsModalOpen(true);
+    };
 
-            {/* Table */}
-            <DataTable
-                data={limitsData}
-                columns={columns}
-                filters={filters}
-                searchPlaceholder="Search limits"
-                onRefresh={handleRefresh}
-                onExport={handleExport}
-                showDateFilter={false}
-                rowActions={(item) => (
-                    <button className="p-1 hover:bg-gray-100 ml-2 rounded">
-                        <Image src="/dashboard/search.svg" alt="More" width={20} height={20}/>
-                    </button>
-                )}
-                pageSize={10}
+    const handleEditLimit = (limit: Limit) => {
+        console.log("Editing limit:", limit);
+        // Add your edit limit logic here
+    };
+
+    const handleDeactivateLimit = (limit: Limit) => {
+        console.log("Deactivating limit:", limit);
+        // Add your deactivate limit logic here
+    };
+
+    const handleDeleteLimit = (limit: Limit) => {
+        console.log("Deleting limit:", limit);
+        // Add your delete limit logic here
+    };
+
+    const closeDetailsModal = () => {
+        setIsDetailsModalOpen(false);
+        setSelectedLimit(null);
+    };
+
+    return (
+        <>
+            <div className="space-y-6">
+                {/* Header */}
+                <h1 className="text-2xl font-bold text-gray-900">Limits</h1>
+
+                {/* Table */}
+                <DataTable
+                    data={limitsData}
+                    columns={columns}
+                    filters={filters}
+                    searchPlaceholder="Search limits"
+                    onRefresh={handleRefresh}
+                    onExport={handleExport}
+                    showDateFilter={false}
+                    rowActions={(item) => (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button className="p-1 hover:bg-gray-100 rounded">
+                                    <MoreVertical className="w-4 h-4 text-gray-500" />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem
+                                    onClick={() => handleViewDetails(item)}
+                                    className="cursor-pointer"
+                                >
+                                    <Eye className="w-4 h-4 mr-2" />
+                                    View Details
+                                </DropdownMenuItem>
+                                {/* <DropdownMenuItem
+                                    onClick={() => handleEditLimit(item)}
+                                    className="cursor-pointer"
+                                >
+                                    <Edit className="w-4 h-4 mr-2" />
+                                    Edit Limit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => handleDeactivateLimit(item)}
+                                    className="cursor-pointer text-red-600 focus:text-red-600"
+                                >
+                                    <UserX className="w-4 h-4 mr-2" />
+                                    {item.status === "Active" ? "Deactivate" : "Activate"} Limit
+                                </DropdownMenuItem> */}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
+                    pageSize={10}
+                />
+            </div>
+
+            {/* Limit Details Modal */}
+            <LimitDetailsModal
+                isOpen={isDetailsModalOpen}
+                onClose={closeDetailsModal}
+                limit={selectedLimit}
+                onEdit={handleEditLimit}
+                onDeactivate={handleDeactivateLimit}
+                onDelete={handleDeleteLimit}
             />
-        </div>
+        </>
     );
 };
 

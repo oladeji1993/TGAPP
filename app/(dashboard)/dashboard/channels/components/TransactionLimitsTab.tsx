@@ -57,15 +57,15 @@ const TransactionLimitsTab: React.FC<TransactionLimitsTabProps> = ({ channelName
                             <div className="col-span-4">
                                 <span className="text-sm font-medium text-gray-900">{limit.paymentType}</span>
                             </div>
-                            
+
                             <div className="col-span-2">
                                 <span className="text-sm text-gray-900">{limit.currency}</span>
                             </div>
-                            
+
                             <div className="col-span-4">
                                 <span className="text-sm text-gray-900">{limit.transactionLimit}</span>
                             </div>
-                            
+
                             <div className="col-span-2 flex justify-end">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -80,7 +80,7 @@ const TransactionLimitsTab: React.FC<TransactionLimitsTabProps> = ({ channelName
                                         <DropdownMenuItem onClick={() => handleAction('configure', limit)}>
                                             Configure
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem 
+                                        <DropdownMenuItem
                                             onClick={() => handleAction('reset', limit)}
                                             className="text-red-600 hover:text-red-700"
                                         >

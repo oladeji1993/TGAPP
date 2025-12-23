@@ -106,8 +106,8 @@ const ChannelDetailsModal: React.FC<ChannelDetailsModalProps> = ({
                         <button
                             onClick={() => setActiveTab('details')}
                             className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === 'details'
-                                    ? 'border-red-500 text-red-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                ? 'border-red-500 text-red-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             Details
@@ -115,8 +115,8 @@ const ChannelDetailsModal: React.FC<ChannelDetailsModalProps> = ({
                         <button
                             onClick={() => setActiveTab('paymentTypes')}
                             className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === 'paymentTypes'
-                                    ? 'border-red-500 text-red-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                ? 'border-red-500 text-red-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             Payment Types
@@ -124,8 +124,8 @@ const ChannelDetailsModal: React.FC<ChannelDetailsModalProps> = ({
                         <button
                             onClick={() => setActiveTab('transactionLimits')}
                             className={`py-4 text-sm font-medium border-b-2 transition-colors ${activeTab === 'transactionLimits'
-                                    ? 'border-red-500 text-red-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                ? 'border-red-500 text-red-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             Transaction Limits
